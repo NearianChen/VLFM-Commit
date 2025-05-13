@@ -1,0 +1,99 @@
+# @package _global_
+
+# Copyright (c) 2023 Boston Dynamics AI Institute LLC. All rights reserved.
+
+# 默认配置导入
+defaults:
+  - /habitat_baselines: habitat_baselines_rl_config_base  # 导入基础强化学习配置
+  - /benchmark/nav/objectnav: objectnav_hm3d  # 导入HM3D环境中的物体导航任务配置
+  - /habitat/task/lab_sensors:  # 导入任务所需的传感器配置
+      - base_explorer  # 基础探索者传感器
+      - compass_sensor  # 指南针传感器，提供方向信息
+      - gps_sensor  # GPS传感器，提供位置信息
+      - heading_sensor  # 航向传感器，提供朝向信息
+      - frontier_sensor  # 前沿探索传感器，用于发现未探索区域
+  - /habitat/task/measurements:  # 导入任务度量指标
+    - frontier_exploration_map  # 前沿探索地图，追踪已探索和未探索区域
+    - traveled_stairs  # 楼梯移动计数，记录穿越楼梯的次数
+  - /habitat_baselines/rl/policy: vlfm_policy  # 导入VLFM策略配置
+  - _self_  # 包含当前文件的配置
+
+habitat:
+  environment:
+    iterator_options:
+      max_scene_repeat_steps: 50000  # 场景重复的最大步数，超过此值会切换场景
+  task:
+    success_reward: 2.5  # 任务成功时给予的奖励
+    slack_reward: -1e-3  # 每步的惩罚项，鼓励智能体高效完成任务
+    lab_sensors:
+      base_explorer:
+        turn_angle: 30  # 旋转动作的角度（单位：度）
+
+habitat_baselines:
+  evaluate: True  # 启用评估模式
+  eval_ckpt_path_dir: data/dummy_policy.pth  # 评估时使用的策略检查点路径
+  num_environments: 1  # 并行环境数量
+  load_resume_state_config: False  # 是否加载之前的训练状态
+
+  torch_gpu_id: 0  # 使用的GPU ID
+  tensorboard_dir: "tb"  # TensorBoard日志目录
+  video_dir: "video_dir"  # 视频输出目录
+  test_episode_count: -1  # 测试时的剧集数量，-1表示使用所有剧集
+  checkpoint_folder: "data/new_checkpoints"  # 检查点保存文件夹
+  trainer_name: "vlfm"  # 训练器名称
+  num_updates: 270000  # 更新次数
+  log_interval: 10  # 日志记录间隔
+  num_checkpoints: 100  # 检查点数量
+  # Force PyTorch to be single threaded as
+  # this improves performance considerably
+  force_torch_single_threaded: True  # 强制PyTorch使用单线程模式
+
+  eval:
+    split: "val"  # 评估时使用的拆分数据集
+
+  rl:
+
+    policy:
+      name: "HabitatITMPolicyV2"  # 使用的策略名称
+
+    ppo:
+      # ppo params
+      clip_param: 0.2  # 截断参数
+      ppo_epoch: 4  # 每次更新的ppo轮数
+      num_mini_batch: 2  # 每个epoch的最小批量数
+      value_loss_coef: 0.5  # 值损失系数
+      entropy_coef: 0.01  # 熵惩罚系数
+      lr: 2.5e-4  # 学习率
+      eps: 1e-5  # epsilon值，用于数值稳定
+      max_grad_norm: 0.2  # 梯度裁剪的最大范数
+      num_steps: 64  # 每个更新步骤的帧数
+      use_gae: True  # 是否使用广义优势估计
+      gamma: 0.99  # 折扣因子
+      tau: 0.95  # GAE的tau参数
+      use_linear_clip_decay: False  # 是否使用线性衰减的clip参数
+      use_linear_lr_decay: False  # 是否使用线性衰减的学习率
+      reward_window_size: 50  # 奖励窗口大小
+
+      use_normalized_advantage: False  # 是否使用归一化的优势
+
+      hidden_size: 512  # 隐藏层大小
+
+    ddppo:
+      sync_frac: 0.6  # 同步的比例
+      # The PyTorch distributed backend to use
+      distrib_backend: NCCL  # 使用的分布式后端
+      # Visual encoder backbone
+      pretrained_weights: data/ddppo-models/gibson-2plus-resnet50.pth  # 预训练权重路径
+      # Initialize with pretrained weights
+      pretrained: False  # 是否使用预训练权重初始化
+      # Initialize just the visual encoder backbone with pretrained weights
+      pretrained_encoder: False  # 是否仅用预训练权重初始化视觉编码器
+      # Whether or not the visual encoder backbone will be trained.
+      train_encoder: True  # 视觉编码器是否参与训练
+      # Whether or not to reset the critic linear layer
+      reset_critic: False  # 是否重置评论家线性层
+
+      # Model parameters
+      backbone: resnet50  # 主干网络
+      rnn_type: LSTM  # RNN类型
+      num_recurrent_layers: 2  # 递归层数
