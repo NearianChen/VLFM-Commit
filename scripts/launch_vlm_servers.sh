@@ -15,7 +15,7 @@ export BLIP2ITM_PORT=${BLIP2ITM_PORT:-12182}
 export SAM_PORT=${SAM_PORT:-12183}
 export YOLOV7_PORT=${YOLOV7_PORT:-12184}
 
-session_name=vlm_servers_${RANDOM}
+session_name=vlm_servers
 
 # Create a detached tmux session
 tmux new-session -d -s ${session_name}

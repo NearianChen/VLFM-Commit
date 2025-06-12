@@ -1,0 +1,19 @@
+# directory
+yolov7/
+GroundingDINO/
+vlfm.egg-info/
+build/
+video_dir/
+data/
+outputs/
+tb/
+__pycache__/
+lockfiles/
+
+# file & link
+video_dir
+VLFM Setup.md
+
+# model
+*.pt
+*.pth

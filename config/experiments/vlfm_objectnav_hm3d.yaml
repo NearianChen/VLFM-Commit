@@ -38,7 +38,7 @@ habitat_baselines:
   torch_gpu_id: 0  # 使用的GPU ID
   tensorboard_dir: "tb"  # TensorBoard日志目录
   video_dir: "video_dir"  # 视频输出目录
-  test_episode_count: -1  # 测试时的剧集数量，-1表示使用所有剧集
+  test_episode_count: 5  # 测试时的剧集数量，-1表示使用所有剧集
   checkpoint_folder: "data/new_checkpoints"  # 检查点保存文件夹
   trainer_name: "vlfm"  # 训练器名称
   num_updates: 270000  # 更新次数
@@ -50,6 +50,7 @@ habitat_baselines:
 
   eval:
     split: "val"  # 评估时使用的拆分数据集
+    video_option: ['disk'] # 视频输出选项，'disk'表示保存到磁盘
 
   rl:
 
